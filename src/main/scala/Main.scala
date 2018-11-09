@@ -1,5 +1,9 @@
-import rx.lang.scala._
+
 import scala.concurrent.duration._
+import rx.lang.scala._
+import scala.concurrent.Future
+import scala.io.Source
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 object Main extends App {
@@ -29,25 +33,22 @@ object Main extends App {
 	//  TWO TIMEOUT
 	//  ONE TIMEOUT
 	//  FINISH
-
-
-	val classics = List("Il buono, il brutto, il cattivo.", "Back to the future", "Die Hard")
-	val o = Observable.from(classics)
-
-	o.subscribe(new Observer[String] {
-		override def onNext(m: String) = println(s"Movies Watchlist - $m")
-		override def onError(e: Throwable) = println(s"Ooops - $e!")
-		override def onCompleted() = println(s"No more movies.")
-	})
 }
 
-//object ObservablesLifetime extends App {
-//	val classics = List("Il buono, il brutto, il cattivo.", "Back to the future", "Die Hard")
-//	val o = Observable.from(classics)
-//
-//	o.subscribe(new Observer[String] {
-//		override def onNext(m: String) = println(s"Movies Watchlist - $m")
-//		override def onError(e: Throwable) = println(s"Ooops - $e!")
-//		override def onCompleted() = println(s"No more movies.")
-//	})
-//}
+object ReactiveBbc extends App {
+
+	val news = Observable[String] { // observable are the elements producing stream of events
+		observer => Future { // observers are the elements listening those events, they consume them
+			while (true) {
+				val htmlResponse = Source.fromURL("http://feeds.bbci.co.uk/news/rss.xml").mkString
+				observer.onNext(htmlResponse)
+				println("sleeping1...")
+				Thread.sleep(5000)
+			}
+		}
+		Subscription()
+	}
+
+	news.subscribe(print(_))
+	Thread.sleep(60000) // I want to run the app for a long time (1 hour), and during this time I will fetch every 5 seconds news from the url. IS NOT FUNNY
+}
