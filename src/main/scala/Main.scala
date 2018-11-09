@@ -6,36 +6,32 @@ import scala.io.Source
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-object Main extends App {
+object Reactive1 extends App {
 	val ob1 = Observable.items("Pascal", "Java", "Scala")
-
-	ob1.subscribe(name => println("ONE: "  + name))
-	ob1.subscribe(name => println("TWO: "  + name))
+	ob1.subscribe(name => println("Another event: "  + name))
 
 	// output
-	//	ONE: Pascal
-	//	ONE: Java
-	//	ONE: Scala
-	//	TWO: Pascal
-	//	TWO: Java
-	//	TWO: Scala
+	//	Another event: Pascal
+	//	Another event: Java
+	//	Another event: Scala
+}
 
-	val ob2 = Observable.timer(2.second)
+object Reactive2 extends App {
+	val ob2 = Observable.timer(5.second)
 	ob2.subscribe(_ => println("ONE TIMEOUT"))
-	ob2.subscribe(_ => println("TWO TIMEOUT"))
 
 	println("SLEEPING....")
-	Thread.sleep(10000)
+	Thread.sleep(20000)
 	println("FINISH")
 
 	// output
 	//  SLEEPING....
-	//  TWO TIMEOUT
+	//  <after 5 seconds....>
 	//  ONE TIMEOUT
 	//  FINISH
 }
 
-object ReactiveBbc extends App {
+object Reactive3 extends App {
 
 	val news = Observable[String] { // observable are the elements producing stream of events
 		observer => Future { // observers are the elements listening those events, they consume them
